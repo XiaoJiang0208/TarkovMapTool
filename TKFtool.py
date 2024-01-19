@@ -4,9 +4,10 @@ from selenium.webdriver.common.keys import Keys
 import keyboard as kb
 import time
 import os
+import pathlib
 
 #截图路径
-ImgPath='C:/Users/18370/Documents/Escape from Tarkov/Screenshots/'
+ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
 #位置刷新间隔（秒）
 sleeptime=2.5
 #自动截图
@@ -20,7 +21,8 @@ key='j'
 
 def getPosition():
     global tmp
-    dir=os.listdir('C:/Users/18370/Documents/Escape from Tarkov/Screenshots/')
+    dir=os.listdir(ImgPath)
+    print(dir)
     if len(dir)==0:
         return tmp
     tmp=dir[0]
@@ -28,7 +30,7 @@ def getPosition():
     return tmp
 
 def InitDir():
-    dir=os.listdir('C:/Users/18370/Documents/Escape from Tarkov/Screenshots/')
+    dir=os.listdir(ImgPath)
     for d in dir:
         os.remove(ImgPath+d)
 
