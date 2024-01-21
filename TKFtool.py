@@ -92,7 +92,10 @@ def setMarker(driver:webdriver.Edge,id,ps):
 
 
 def setPlayerData(marker)->dict:
-    PlayerData=requests.post(server+roomid,data=json.dumps({'player':playerid,'marker':marker})).json()
+    print(1)
+    print({'player':playerid,'marker':marker})
+    PlayerData=requests.post(server+roomid,json={'player':playerid,'marker':marker}).json()
+    print(2)
     return PlayerData
 
 if __name__ == "__main__":
@@ -112,9 +115,9 @@ if __name__ == "__main__":
             time.sleep(0.01)
             bt.send_keys(getPosition())
             #处理多人
-            if not roomid and not playerid:
+            if roomid and playerid:
                 datas=setPlayerData(getMarker(driver))
-                for player in datas.values():
+                for player in datas.keys():
                     if player != playerid:
                         setMarker(driver,player,datas[player])
             print(setPlayerData(getMarker(driver)))

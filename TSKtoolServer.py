@@ -8,7 +8,8 @@ database=dict()
 def index(page):
     player=request.get_json()
     print(player)
-    if database.get(page,True):
+    if page not in database.keys():
+        print(1)
         database[page]={}
     database[page][player['player']]=player['marker']
     print(database)
