@@ -1,10 +1,12 @@
 from selenium import  webdriver 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+import requests
 import keyboard as kb
 import time
 import os
 import pathlib
+import json
+
 
 #截图路径
 ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
@@ -18,11 +20,17 @@ on_auto='f5'
 off_auto='f6'
 #截图键
 key='j'
+#房间号
+roomid='test'
+#用户id
+playerid='xj'
+#联机服务器
+server='http://127.0.0.1:5000/'
+
 
 def getPosition():
     global tmp
     dir=os.listdir(ImgPath)
-    print(dir)
     if len(dir)==0:
         return tmp
     tmp=dir[0]
@@ -41,22 +49,74 @@ def getkb(event):
     if event.name==off_auto:
         auto=False
 
-driver = webdriver.Edge()
-driver.get('https://tarkov-market.com/maps/ground-zero')
-InitDir()
-while True:
-    time.sleep(sleeptime)
-    kb.on_press(getkb)
+def getConfig():
+    global ImgPath, sleeptime, on_auto, off_auto, key, roomid, playerid, server
+    if 'setting.json' not in os.listdir('.\\'):
+        with open('setting.json','w') as setting:
+            cfg = json.dumps({'ImgPath':ImgPath,
+                            'sleeptime':sleeptime,
+                            'on_auto':on_auto,
+                            'off_auto':off_auto,
+                            'key':key,
+                            'roomid':roomid,
+                            'playerid':playerid,
+                            'server':server})
+            setting.write(cfg)
+    with open('setting.json','r') as setting:
+        cfg = json.loads(setting.read())
+        ImgPath=cfg['ImgPath']
+        sleeptime=cfg['sleeptime']
+        on_auto=cfg['on_auto']
+        off_auto=cfg['off_auto']
+        key=cfg['key']
+        roomid=cfg['roomid']
+        playerid=cfg['playerid']
+        server=cfg['server']
+        
+def getMarker(driver:webdriver.Edge):
+    marker=driver.find_element(By.XPATH, "//*[@class='marker']")
+    return marker.get_attribute('style')
+
+def setMarker(driver:webdriver.Edge,id,ps):
+    '''设置新marker'''
     try:
-        bt=driver.find_element(By.XPATH, "//*[@placeholder='Paste file name here']")
-        if auto: #是否自动截图
-            kb.press_and_release(key)
-        bt.send_keys(getPosition())
-        driver.find_element(By.XPATH, "//button[contains(text(),'Where am i?')]").click()
-        driver.find_element(By.XPATH, "//button[contains(text(),'Where am i?')]").click()
+        driver.find_element(By.XPATH, f"//*[@id='{id}']")
     except:
+        js=f'''var map=document.querySelector("#map");
+            map.insertAdjacentHTML("beforeend","<div data-v-41df697d id='{id}' class='marker' style='{ps}background:#f9ff01;'> &nbsp;</div>")'''
+        driver.execute_script(js)
+        return
+    js=f'''var map=document.querySelector("#{id}");
+            map.setAttribute('style','{ps}background:#f9ff01;');'''
+    driver.execute_script(js)
+
+
+def setPlayerData(marker):
+    PlayerData=requests.post(server+roomid,data=json.dumps({'player':playerid,'marker':marker})).json()
+    return PlayerData
+
+if __name__ == "__main__":
+    driver = webdriver.Edge()
+    driver.get('https://tarkov-market.com/maps/ground-zero')
+    InitDir()
+    getConfig()
+    kb.on_press(getkb)
+    
+    while True:
+        time.sleep(sleeptime)
         try:
-            driver.find_element(By.XPATH, "//button[contains(text(),'Where am i?')]").click()
-            print('获取输入框。。。')
-        except:
-            print('无法打开输入框')
+            if auto: #是否自动截图
+                kb.press_and_release(key)
+            bt=driver.find_element(By.XPATH, "//*[@placeholder='Paste file name here']")
+            bt.click()
+            time.sleep(0.01)
+            bt.send_keys(getPosition())
+            #处理
+            print(setPlayerData(getMarker(driver)))
+        except Exception as e:
+            print(e)
+            try:
+                driver.find_element(By.XPATH, "//button[contains(text(),'Where am i?')]").click()
+                print('获取输入框。。。')
+            except:
+                print('无法打开输入框')
