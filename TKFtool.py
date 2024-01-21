@@ -91,7 +91,7 @@ def setMarker(driver:webdriver.Edge,id,ps):
     driver.execute_script(js)
 
 
-def setPlayerData(marker):
+def setPlayerData(marker)->dict:
     PlayerData=requests.post(server+roomid,data=json.dumps({'player':playerid,'marker':marker})).json()
     return PlayerData
 
@@ -111,7 +111,12 @@ if __name__ == "__main__":
             bt.click()
             time.sleep(0.01)
             bt.send_keys(getPosition())
-            #处理
+            #处理多人
+            if not roomid and not playerid:
+                datas=setPlayerData(getMarker(driver))
+                for player in datas.values():
+                    if player != playerid:
+                        setMarker(driver,player,datas[player])
             print(setPlayerData(getMarker(driver)))
         except Exception as e:
             print(e)

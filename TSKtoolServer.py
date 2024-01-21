@@ -9,7 +9,6 @@ def index(page):
     player=request.get_json()
     print(player)
     if database.get(page,True):
-        print('ssssssss')
         database[page]={}
     database[page][player['player']]=player['marker']
     print(database)
