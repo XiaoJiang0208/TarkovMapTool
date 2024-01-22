@@ -77,17 +77,22 @@ def getMarker(driver:webdriver.Edge):
     marker=driver.find_element(By.XPATH, "//*[@class='marker']")
     return marker.get_attribute('style')
 
-def setMarker(driver:webdriver.Edge,id,ps):
+def setMarker(driver:webdriver.Edge,id,ps='',color='#f9ff01'):
     '''设置新marker'''
     try:
         driver.find_element(By.XPATH, f"//*[@id='{id}']")
     except:
         js=f'''var map=document.querySelector("#map");
-            map.insertAdjacentHTML("beforeend","<div data-v-41df697d id='{id}' class='marker' style='{ps}background:#f9ff01;'> &nbsp;</div>")'''
+            map.insertAdjacentHTML("beforeend","<div id='{id}' class='marker' style='{ps}background:{color};'></div>")'''
         driver.execute_script(js)
         return
-    js=f'''var map=document.querySelector("#{id}");
-            map.setAttribute('style','{ps}background:#f9ff01;');'''
+    if ps=='':
+        js=f'''
+        var marker=document.querySelector("#{id}");
+        marker.remove()
+        '''
+    js=f'''var marker=document.querySelector("#{id}");
+            marker.setAttribute('style','{ps}background:{color};');'''
     driver.execute_script(js)
 
 
@@ -104,7 +109,7 @@ if __name__ == "__main__":
     InitDir()
     getConfig()
     kb.on_press(getkb)
-    
+    playerList=[]
     while True:
         time.sleep(sleeptime)
         try:
@@ -114,13 +119,24 @@ if __name__ == "__main__":
             bt.click()
             time.sleep(0.01)
             bt.send_keys(getPosition())
+            #新的标记渲染机制
+            print(1)
+            ps=getMarker(driver)
+            print(2)
+            js=f'''var marker=document.querySelector(".marker");
+            marker.style.visibility="hidden"'''
+            driver.execute_script(js)
+            setMarker(driver,playerid,ps,color="#6aff00")
             #处理多人
             if roomid and playerid:
                 datas=setPlayerData(getMarker(driver))
+                for player in playerList:
+                    setMarker(driver,player)
                 for player in datas.keys():
                     if player != playerid:
                         setMarker(driver,player,datas[player])
-            print(setPlayerData(getMarker(driver)))
+                playerList=datas.keys()
+                print(setPlayerData(getMarker(driver)))
         except Exception as e:
             print(e)
             try:

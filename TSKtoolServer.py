@@ -12,7 +12,6 @@ def index(page):
         print(1)
         database[page]={}
     database[page][player['player']]=player['marker']
-    print(database)
     return json.dumps(database[page])
 
 app.run()
