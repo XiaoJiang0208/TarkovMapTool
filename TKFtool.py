@@ -115,7 +115,7 @@ if __name__ == "__main__":
     kb.on_press(getkb)
     playerList=[]
     while True:
-        time.sleep(sleeptime)
+        time.sleep(1.5)
         try:
             if auto: #是否自动截图
                 kb.press_and_release(key)
