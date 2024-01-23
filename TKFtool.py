@@ -6,6 +6,7 @@ import time
 import os
 import pathlib
 import json
+import traceback
 
 
 #截图路径
@@ -21,13 +22,14 @@ off_auto='f6'
 #截图键
 key='j'
 #房间号
-roomid='test'
+roomid=''
 #用户id
-playerid='xj'
+playerid=''
 #联机服务器
-server='http://127.0.0.1:5000/'
+server=''
 
 
+tmp=''
 def getPosition():
     global tmp
     dir=os.listdir(ImgPath)
@@ -75,21 +77,23 @@ def getConfig():
         
 def getMarker(driver:webdriver.Edge):
     marker=driver.find_element(By.XPATH, "//*[@class='marker']")
-    return marker.get_attribute('style')
+    return marker.get_attribute('style').rstrip("visibility: hidden;")+";"
 
 def setMarker(driver:webdriver.Edge,id,ps='',color='#f9ff01'):
     '''设置新marker'''
+    if not id:
+        id='offline'
     try:
         driver.find_element(By.XPATH, f"//*[@id='{id}']")
     except:
         js=f'''var map=document.querySelector("#map");
-            map.insertAdjacentHTML("beforeend","<div id='{id}' class='marker' style='{ps}background:{color};'></div>")'''
+            map.insertAdjacentHTML("beforeend","<div id='{id}' class='marker' style='{ps}background:{color};'></div>");'''
         driver.execute_script(js)
         return
     if ps=='':
         js=f'''
         var marker=document.querySelector("#{id}");
-        marker.remove()
+        marker.remove();
         '''
     js=f'''var marker=document.querySelector("#{id}");
             marker.setAttribute('style','{ps}background:{color};');'''
@@ -120,15 +124,13 @@ if __name__ == "__main__":
             time.sleep(0.01)
             bt.send_keys(getPosition())
             #新的标记渲染机制
-            print(1)
             ps=getMarker(driver)
-            print(2)
-            js=f'''var marker=document.querySelector(".marker");
-            marker.style.visibility="hidden"'''
-            driver.execute_script(js)
+            marker=driver.find_element(By.XPATH,"/html/body/div/div/div/div[2]/div/div/div[4]/div")
+            driver.execute_script('arguments[0].style.visibility="hidden";',marker)
             setMarker(driver,playerid,ps,color="#6aff00")
             #处理多人
-            if roomid and playerid:
+            if server and roomid and playerid:
+                print("处理多人")
                 datas=setPlayerData(getMarker(driver))
                 for player in playerList:
                     setMarker(driver,player)
@@ -137,8 +139,8 @@ if __name__ == "__main__":
                         setMarker(driver,player,datas[player])
                 playerList=datas.keys()
                 print(setPlayerData(getMarker(driver)))
-        except Exception as e:
-            print(e)
+        except:
+            print(traceback.format_exc())
             try:
                 driver.find_element(By.XPATH, "//button[contains(text(),'Where am i?')]").click()
                 print('获取输入框。。。')
