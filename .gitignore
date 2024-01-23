@@ -13,4 +13,4 @@ build/TKFtool/TKFtool.pkg
 build/TKFtool/warn-TKFtool.txt
 build/TKFtool/xref-TKFtool.html
 setting.json
-dist/TKFtool.exe
+dist/
