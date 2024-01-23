@@ -21,12 +21,6 @@ on_auto='f5'
 off_auto='f6'
 #截图键
 key='j'
-#房间号
-roomid=''
-#用户id
-playerid=''
-#联机服务器
-server=''
 
 
 tmp=''
@@ -59,10 +53,7 @@ def getConfig():
                             'sleeptime':sleeptime,
                             'on_auto':on_auto,
                             'off_auto':off_auto,
-                            'key':key,
-                            'roomid':roomid,
-                            'playerid':playerid,
-                            'server':server})
+                            'key':key})
             setting.write(cfg)
     with open('setting.json','r') as setting:
         cfg = json.loads(setting.read())
@@ -71,9 +62,6 @@ def getConfig():
         on_auto=cfg['on_auto']
         off_auto=cfg['off_auto']
         key=cfg['key']
-        roomid=cfg['roomid']
-        playerid=cfg['playerid']
-        server=cfg['server']
         
 def getMarker(driver:webdriver.Edge):
     marker=driver.find_element(By.XPATH, "//*[@class='marker']")
@@ -127,18 +115,7 @@ if __name__ == "__main__":
             ps=getMarker(driver)
             marker=driver.find_element(By.XPATH,"/html/body/div/div/div/div[2]/div/div/div[4]/div")
             driver.execute_script('arguments[0].style.visibility="hidden";',marker)
-            setMarker(driver,playerid,ps,color="#6aff00")
-            #处理多人
-            if server and roomid and playerid:
-                print("处理多人")
-                datas=setPlayerData(getMarker(driver))
-                for player in playerList:
-                    setMarker(driver,player)
-                for player in datas.keys():
-                    if player != playerid:
-                        setMarker(driver,player,datas[player])
-                playerList=datas.keys()
-                print(setPlayerData(getMarker(driver)))
+            setMarker(driver,'',ps,color="#6aff00")
         except:
             print(traceback.format_exc())
             try:
