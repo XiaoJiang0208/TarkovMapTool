@@ -12,7 +12,7 @@ import traceback
 #截图路径
 ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
 #位置刷新间隔（秒）
-sleeptime=2.5
+sleeptime=1.5
 #自动截图
 auto=False
 #启动自动截图
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     kb.on_press(getkb)
     playerList=[]
     while True:
-        time.sleep(1.5)
+        time.sleep(sleeptime)
         try:
             if auto: #是否自动截图
                 kb.press_and_release(key)
