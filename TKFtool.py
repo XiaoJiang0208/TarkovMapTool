@@ -96,10 +96,10 @@ def setPlayerData(marker)->dict:
     return PlayerData
 
 if __name__ == "__main__":
+    getConfig()
     driver = webdriver.Edge()
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
-    getConfig()
     kb.on_press(getkb)
     playerList=[]
     while True:
