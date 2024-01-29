@@ -74,7 +74,7 @@ def getConfig():
         roomid=cfg['roomid']
         playerid=cfg['playerid']
         server=cfg['server']
-        
+
 def getMarker(driver:webdriver.Edge):
     marker=driver.find_element(By.XPATH, "//*[@class='marker']")
     return marker.get_attribute('style').rstrip("visibility: hidden;")+";"
@@ -101,10 +101,8 @@ def setMarker(driver:webdriver.Edge,id,ps='',color='#f9ff01'):
 
 
 def setPlayerData(marker)->dict:
-    print(1)
     print({'player':playerid,'marker':marker})
     PlayerData=requests.post(server+roomid,json={'player':playerid,'marker':marker}).json()
-    print(2)
     return PlayerData
 
 if __name__ == "__main__":
@@ -133,7 +131,8 @@ if __name__ == "__main__":
                 print("处理多人")
                 datas=setPlayerData(getMarker(driver))
                 for player in playerList:
-                    setMarker(driver,player)
+                    if player !=playerid:
+                        setMarker(driver,player)
                 for player in datas.keys():
                     if player != playerid:
                         setMarker(driver,player,datas[player])

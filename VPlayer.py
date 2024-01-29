@@ -8,7 +8,7 @@ roomid='test'
 #用户id
 playerid='vp'
 #联机服务器
-server='http://127.0.0.1:5000/'
+server='http://everyspower.xyz:5000/'
 
 def setPlayerData(marker)->dict:
     PlayerData=requests.post(server+roomid,json={'player':playerid,'marker':marker}).json()
