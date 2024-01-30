@@ -12,11 +12,14 @@ def index(page):
     if page not in database.keys():
         database[page]={}
     database[page][player['player']]=player['marker']
+    #清理正常离线玩家
+    if player['marker']=='':
+        database[page].pop(player['player'])
     #重置死亡事件
-    database[page]["borntime"]=int(datetime.datetime.now().strftime("%H"))
+    database[page]["borntime"]=int(datetime.datetime.now().strftime("%M"))
     #垃圾清理
     for page in database.keys():
-        if database[page]["borntime"]<int(datetime.datetime.now().strftime("%H"))-death:
+        if database[page]["borntime"]<int(datetime.datetime.now().strftime("%M"))-death:
             database.pop(page)
     #输出数据
     for page in database.keys():

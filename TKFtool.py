@@ -1,4 +1,4 @@
-from selenium import  webdriver 
+from selenium import  webdriver
 from selenium.webdriver.common.by import By
 import requests
 import keyboard as kb
@@ -7,6 +7,7 @@ import os
 import pathlib
 import json
 import traceback
+import atexit
 
 
 #截图路径
@@ -31,6 +32,7 @@ server=''
 
 tmp=''
 def getPosition():
+    '''获取截图位置信息'''
     global tmp
     dir=os.listdir(ImgPath)
     if len(dir)==0:
@@ -40,11 +42,13 @@ def getPosition():
     return tmp
 
 def InitDir():
+    '''初始化截图文件夹'''
     dir=os.listdir(ImgPath)
     for d in dir:
         os.remove(ImgPath+d)
 
-def getkb(event):
+def setScreenShoot(event):
+    '''设置自动截图状态'''
     global auto
     if event.name==on_auto:
         auto=True
@@ -52,6 +56,7 @@ def getkb(event):
         auto=False
 
 def getConfig():
+    '''获取配置文件配置'''
     global ImgPath, sleeptime, on_auto, off_auto, key, roomid, playerid, server
     if 'setting.json' not in os.listdir('.\\'):
         with open('setting.json','w') as setting:
@@ -76,11 +81,12 @@ def getConfig():
         server=cfg['server']
 
 def getMarker(driver:webdriver.Edge):
+    '''获取地图标记位置'''
     marker=driver.find_element(By.XPATH, "//*[@class='marker']")
     return marker.get_attribute('style').rstrip("visibility: hidden;")+";"
 
 def setMarker(driver:webdriver.Edge,id,ps='',color='#f9ff01'):
-    '''设置新marker'''
+    '''设置新marker位置'''
     if not id:
         id='offline'
     try:
@@ -101,23 +107,29 @@ def setMarker(driver:webdriver.Edge,id,ps='',color='#f9ff01'):
 
 
 def setPlayerData(marker)->dict:
+    '''上传玩家数据到在线,返回所有玩家数据'''
     print({'player':playerid,'marker':marker})
     PlayerData=requests.post(server+roomid,json={'player':playerid,'marker':marker}).json()
     return PlayerData
+
+"""@atexit.register
+def offline():
+    '''注册退出事件，退出时从服务器离线'''
+    setPlayerData('')"""#无法使用
 
 if __name__ == "__main__":
     getConfig()
     driver = webdriver.Edge()
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
-    kb.on_press(getkb)
+    kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件
     playerList=[]
     while True:
         time.sleep(sleeptime)
         try:
             if auto: #是否自动截图
                 kb.press_and_release(key)
-            bt=driver.find_element(By.XPATH, "//*[@placeholder='Paste file name here']")
+            bt=driver.find_element(By.XPATH, "/html/body/div/div/div/div[2]/div/div/div[1]/div/input")
             bt.click()
             time.sleep(0.01)
             bt.send_keys(getPosition())
@@ -141,7 +153,7 @@ if __name__ == "__main__":
         except:
             print(traceback.format_exc())
             try:
-                driver.find_element(By.XPATH, "//button[contains(text(),'Where am i?')]").click()
+                driver.find_element(By.XPATH, "/html/body/div/div/div/div[2]/div/div/div[1]/div/button").click()
                 print('获取输入框。。。')
             except:
                 print('无法打开输入框')
