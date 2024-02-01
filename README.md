@@ -1,29 +1,29 @@
 # 塔可夫实时地图工具
 
 ## 视频教程
-    
+
 
 ## 安装和使用
-1. 安装python, 官网：`https://www.python.org/downloads/`
-2. 安装依赖
+1. 下载后运行
+2. 打开自动生成的setting.json文件按照需求修改
     ```
-    pip install selenium -i https://mirrors.aliyun.com/pypi/simple/
-    pip install keyboard -i https://mirrors.aliyun.com/pypi/simple/
+    {"ImgPath": "自己的截图位置（不能有中文路径）",
+    "sleeptime": 1.5,
+    "on_auto": "自动截图键-默认f5",
+    "off_auto": "关闭自动截图键-默认f6",
+    "key": "游戏内截图键-默认j",
+    "roomid": "多人房号",
+    "playerid": "多人名称",
+    "server": "多人服务器"}
     ```
-3. 改键位和设置
-    打开源文件`TKFtool.py`按需求更改
-    ```
-    #截图路径
-    ImgPath='C:/Users/18370/Documents/Escape from Tarkov/Screenshots/'
-    #位置刷新间隔（秒）
-    sleeptime=2
-    #自动截图
-    auto=False
-    #启动自动截图
-    on_auto='f5'
-    #关闭自动截图
-    off_auto='f6'
-    #截图键
-    key='j'
-    ```
-3.使用powerTory的剪切与锁定工具将地图置顶
+3.启动工具，并使用powerTory的剪切与锁定工具将地图置顶
+
+## 多人联机
+1.打开setting.json文件
+- 和要联机的人输入同样的`roomid`值
+- 修改自己的多人名称 `playerid`值
+- 修改多人服务器`server`值，作者自建的服务器`http://everyspower.xyz:5000/`
+    e.g. `"server":"http://everyspower.xyz:5000/"`
+
+## 自建服务器
+安装python运行库，编辑`TKFtoolServer.py`的最后一行`app.run("外网ip-默认127.0.0.1",端口-默认6000)`
