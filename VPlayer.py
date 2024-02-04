@@ -5,11 +5,11 @@ import time
 
 
 #房间号
-roomid='test1'
+roomid=''
 #用户id
-playerid='vp'
+playerid=''
 #联机服务器
-server='http://everyspower.xyz:5000/'
+server=''
 
 def setPlayerData(marker)->dict:
     PlayerData=requests.post(server+roomid,json={'player':playerid,'marker':marker}).json()
