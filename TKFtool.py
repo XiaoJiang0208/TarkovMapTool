@@ -36,11 +36,10 @@ class Map(pg.sprite.Sprite):
     def __init__(self,dir:str) -> None:
         super().__init__()
         self.dir=dir
-        self.image=pg.image.load(self.dir+"/1.png")
-        self.size=1
-        self.showimage=pg.transform.scale_by(self.image,self.size)
+        self.raw=pg.image.load(self.dir+"/1.png")
+        self.size=1.0
+        self.image=pg.transform.scale_by(self.raw,self.size)
         self.rect=self.image.get_rect()
-        self.MoveToMouse=False
 
     def move(self,x,y) -> None:
         '''向xy轴正半轴移动'''
@@ -52,22 +51,23 @@ class Map(pg.sprite.Sprite):
             self.size=0.09
         if self.size>1:
             self.size=1
-        oldwidth=self.showimage.get_width()
-        oldheight=self.showimage.get_height()
-        self.showimage=pg.transform.scale_by(self.image,self.size)
-        self.move((oldwidth-self.showimage.get_width())/2,(oldheight-self.showimage.get_height())/2)
+        oldwidth=self.image.get_width()
+        oldheight=self.image.get_height()
+        self.image=pg.transform.scale_by(self.raw,self.size)
+        self.rect=self.image.get_rect()
+        #self.move((oldwidth-self.image.get_width())/2,(oldheight-self.image.get_height())/2)
 
     def changeLevel(self,level):
-        self.image=pg.image.load(self.dir+"/"+str(level)+".png")
+        self.raw=pg.image.load(self.dir+"/"+str(level)+".png")
         rt=self.rect
         self.rect=self.image.get_rect()
         self.rect.center=rt.center
-        self.showimage=pg.image.load(self.dir+"/"+str(level)+".png")
-        self.showimage=pg.transform.scale_by(self.image,self.size)
+        self.image=pg.image.load(self.dir+"/"+str(level)+".png")
+        self.image=pg.transform.scale_by(self.raw,self.size)
         #self.move((oldwidth-self.showimage.get_width())7/2,(oldheight-self.showimage.get_height())/2)
 
     def update(self, target:pg.Surface) -> None:
-        target.blit(self.showimage,self.rect)
+        target.blit(self.image,self.rect)
         return super().update()
 
 
@@ -79,13 +79,13 @@ class Player(pg.sprite.Sprite):
         self.rect=self.image.get_rect()
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
-        resize=map.size*-0.04#fuk
+        resize=map.size*22.7#fuk
         print("resize",resize)
         ps=getPosition()
         print("ps",ps)
         print("map",map.rect.center)
         print("asdf",ps[0][0]*resize)
-        self.rect.center=(map.rect.centerx+ps[0][0]*resize,map.rect.centery+ps[0][2]*resize)
+        self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
         print(self.rect.center)
         target.blit(self.image,self.rect)
         return super().update()
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     #初始化地图
     factory=Map("./maps/factory")
     factory.rect.center=[pg.display.get_surface().get_size()[0]/2,pg.display.get_surface().get_size()[1]/2]
-    #factory.resize(-0.8)
+    factory.resize(-0.8)
     #初始化鼠标
     mouse=Mouse()
     #初始化玩家
