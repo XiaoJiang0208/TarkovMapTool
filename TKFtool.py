@@ -1,4 +1,6 @@
 #导昏死过去
+import json
+import pathlib
 from typing import Any
 import pygame as pg
 from pygame.locals import *
@@ -69,10 +71,27 @@ class Map(pg.sprite.Sprite):
         return super().update()
 
 
-class Player():
-    pass
+class Player(pg.sprite.Sprite):
+    '''玩家标记'''
+    #-0.04
+    def __init__(self) -> None:
+        self.image=pg.image.load("./marks/player.png")
+        self.rect=self.image.get_rect()
+        super().__init__()
+    def update(self, target:pg.Surface, map:Map) -> None:
+        resize=map.size*-0.04#fuk
+        print("resize",resize)
+        ps=getPosition()
+        print("ps",ps)
+        print("map",map.rect.center)
+        print("asdf",ps[0][0]*resize)
+        self.rect.center=(map.rect.centerx+ps[0][0]*resize,map.rect.centery+ps[0][2]*resize)
+        print(self.rect.center)
+        target.blit(self.image,self.rect)
+        return super().update()
 
 class Button(pg.sprite.Sprite):
+    '''按钮控件'''
     def __init__(self,text:str) -> None:
         super().__init__()
         ft=pg.font.Font("./maps/ARIAL.TTF")
@@ -96,22 +115,35 @@ def InitDir():
     for d in dir:
         os.remove(ImgPath+d)
 
-tmp=''
-def getPosition():
+tmp=[(0,0,0),1]
+def getPosition() -> list:
     '''获取截图位置信息'''
     global tmp
     dir=os.listdir(ImgPath)
     if len(dir)==0:
         return tmp
-    tmp=dir[0]
-    os.remove(ImgPath+tmp)
+    tmp=[list(map(float,dir[0].split("_")[1].split(","))),float(dir[0].split("_")[1].split(",")[1])]
+    os.remove(ImgPath+dir[0])
     return tmp
 
+def getConfig():
+    '''获取配置文件配置'''
+    global ImgPath, sleeptime, on_auto, off_auto, key, roomid, playerid, server
+    if 'setting.json' not in os.listdir('.\\'):
+        with open('setting.json','w') as setting:
+            cfg = json.dumps({'ImgPath':ImgPath})
+            setting.write(cfg)
+    with open('setting.json','r') as setting:
+        cfg = json.loads(setting.read())
+        ImgPath=cfg['ImgPath']
 
 
+ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
 
 
 if __name__ == '__main__':
+    InitDir()
+    getConfig()
     pg.init()
     clock=pg.time.Clock()
     MainWindow=pg.display.set_mode((800,600),pg.RESIZABLE)
@@ -121,9 +153,11 @@ if __name__ == '__main__':
     #初始化地图
     factory=Map("./maps/factory")
     factory.rect.center=[pg.display.get_surface().get_size()[0]/2,pg.display.get_surface().get_size()[1]/2]
-    factory.resize(-0.8)
+    #factory.resize(-0.8)
     #初始化鼠标
     mouse=Mouse()
+    #初始化玩家
+    player=Player()
     #初始化控件
     testup=Button("up")
     testup.setBorder(5)
@@ -168,6 +202,8 @@ if __name__ == '__main__':
         #渲染互动地图
         factory.update(MainWindow)
 
+        #渲染玩家
+        player.update(MainWindow,factory)
         #渲染控件
         testup.update(MainWindow)
         testdown.update(MainWindow)
