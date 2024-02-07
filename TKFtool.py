@@ -2,7 +2,7 @@
 from typing import Any
 import pygame as pg
 from pygame.locals import *
-import sys
+import os
 import traceback
 #性能测试库
 from pyinstrument import Profiler
@@ -88,6 +88,28 @@ class Button(pg.sprite.Sprite):
     def update(self, target:pg.Surface) -> None:
         target.blit(self.image,self.rect)
         target.blit(self.text,self.rect)
+
+
+def InitDir():
+    '''初始化截图文件夹'''
+    dir=os.listdir(ImgPath)
+    for d in dir:
+        os.remove(ImgPath+d)
+
+tmp=''
+def getPosition():
+    '''获取截图位置信息'''
+    global tmp
+    dir=os.listdir(ImgPath)
+    if len(dir)==0:
+        return tmp
+    tmp=dir[0]
+    os.remove(ImgPath+tmp)
+    return tmp
+
+
+
+
 
 if __name__ == '__main__':
     pg.init()
