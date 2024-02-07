@@ -36,7 +36,7 @@ class Map(pg.sprite.Sprite):
     def __init__(self,dir:str) -> None:
         super().__init__()
         self.dir=dir
-        self.raw=pg.image.load(self.dir+"/1.png")
+        self.raw=pg.image.load(self.dir+"/1.png").convert_alpha()
         self.size=1.0
         self.image=pg.transform.scale_by(self.raw,self.size)
         self.rect=self.image.get_rect()
@@ -58,11 +58,11 @@ class Map(pg.sprite.Sprite):
         #self.move((oldwidth-self.image.get_width())/2,(oldheight-self.image.get_height())/2)
 
     def changeLevel(self,level):
-        self.raw=pg.image.load(self.dir+"/"+str(level)+".png")
+        self.raw=pg.image.load(self.dir+"/"+str(level)+".png").convert_alpha()
         rt=self.rect
         self.rect=self.image.get_rect()
         self.rect.center=rt.center
-        self.image=pg.image.load(self.dir+"/"+str(level)+".png")
+        self.image=pg.image.load(self.dir+"/"+str(level)+".png").convert_alpha()
         self.image=pg.transform.scale_by(self.raw,self.size)
         #self.move((oldwidth-self.showimage.get_width())7/2,(oldheight-self.showimage.get_height())/2)
 
@@ -75,18 +75,13 @@ class Player(pg.sprite.Sprite):
     '''玩家标记'''
     #-0.04
     def __init__(self) -> None:
-        self.image=pg.image.load("./marks/player.png")
+        self.image=pg.image.load("./marks/player.png").convert_alpha()
         self.rect=self.image.get_rect()
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
         resize=map.size*22.7#fuk
-        print("resize",resize)
         ps=getPosition()
-        print("ps",ps)
-        print("map",map.rect.center)
-        print("asdf",ps[0][0]*resize)
         self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
-        print(self.rect.center)
         target.blit(self.image,self.rect)
         return super().update()
 
