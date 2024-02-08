@@ -6,9 +6,8 @@ import pygame as pg
 from pygame.locals import *
 import os
 import traceback
+from scipy.spatial.transform import Rotation as R
 #性能测试库
-from pyinstrument import Profiler
-profiler = Profiler()
 
 
 class Mouse(pg.sprite.Sprite):
@@ -46,18 +45,19 @@ class Map(pg.sprite.Sprite):
         self.rect.center=(self.rect.center[0]+x,self.rect.center[1]+y)
 
     def resize(self,p) -> None:
+        '''缩放'''
         self.size+=p
         if self.size<0.09:
             self.size=0.09
         if self.size>1:
             self.size=1
-        oldwidth=self.image.get_width()
-        oldheight=self.image.get_height()
+        tmp=self.rect
         self.image=pg.transform.scale_by(self.raw,self.size)
         self.rect=self.image.get_rect()
-        #self.move((oldwidth-self.image.get_width())/2,(oldheight-self.image.get_height())/2)
+        self.rect.center=tmp.center
 
     def changeLevel(self,level):
+        '''控制地图层级'''
         self.raw=pg.image.load(self.dir+"/"+str(level)+".png").convert_alpha()
         rt=self.rect
         self.rect=self.image.get_rect()
@@ -75,12 +75,27 @@ class Player(pg.sprite.Sprite):
     '''玩家标记'''
     #-0.04
     def __init__(self) -> None:
-        self.image=pg.image.load("./marks/player.png").convert_alpha()
+        self.raw=pg.image.load("./marks/player.png").convert_alpha()
+        self.image=pg.transform.scale_by(self.raw,0.2)
         self.rect=self.image.get_rect()
+        self.size=0.2
+        self.angle=0
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
         resize=map.size*22.7#fuk
         ps=getPosition()
+        #如果大小发生变化改变大小
+        if self.size!=map.size:
+            self.size=map.size
+            print(self.angle+90)
+            self.image=pg.transform.rotozoom(self.raw,-(self.angle+90),self.size)
+            self.rect=self.image.get_rect()
+        #角度变化
+        if self.angle!=ps[1]:
+            self.angle=ps[1]
+            print(self.angle+90)
+            self.image=pg.transform.rotozoom(self.raw,-(self.angle+90),self.size)
+            self.rect=self.image.get_rect()
         self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
         target.blit(self.image,self.rect)
         return super().update()
@@ -96,6 +111,7 @@ class Button(pg.sprite.Sprite):
         self.border=0
 
     def setBorder(self,bd):
+        '''设置边框'''
         self.border=bd
         self.image=pg.Surface((self.text.get_width()+self.border,self.text.get_height()+self.border))
 
@@ -110,14 +126,28 @@ def InitDir():
     for d in dir:
         os.remove(ImgPath+d)
 
-tmp=[(0,0,0),1]
+def quaternion2euler(quaternion):
+    '''计算旋转角'''
+    r = R.from_quat(quaternion)
+    euler = r.as_euler('xyz', degrees=True)
+    return euler
+
+tmp=[(0,0,0),0.0]
 def getPosition() -> list:
     '''获取截图位置信息'''
     global tmp
     dir=os.listdir(ImgPath)
     if len(dir)==0:
         return tmp
-    tmp=[list(map(float,dir[0].split("_")[1].split(","))),float(dir[0].split("_")[1].split(",")[1])]
+    #求旋转角
+    angle=dir[0].split("_")[2].split(",")
+    angle[3]=angle[3][:-7]
+    angle=list(map(float,angle))
+    angle=quaternion2euler(angle)
+    print("++++",angle)
+    angle=angle[1] if angle[1]>=0 else 180-angle[1]
+    print("----",angle)
+    tmp=[list(map(float,dir[0].split("_")[1].split(","))),angle]
     os.remove(ImgPath+dir[0])
     return tmp
 
@@ -137,13 +167,13 @@ ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\
 
 
 if __name__ == '__main__':
+    #各种初始化:/
     InitDir()
     getConfig()
     pg.init()
     clock=pg.time.Clock()
     MainWindow=pg.display.set_mode((800,600),pg.RESIZABLE)
     pg.display.set_caption("test")
-    x=1.0
 
     #初始化地图
     factory=Map("./maps/factory")
@@ -199,9 +229,11 @@ if __name__ == '__main__':
 
         #渲染玩家
         player.update(MainWindow,factory)
+
         #渲染控件
         testup.update(MainWindow)
         testdown.update(MainWindow)
+
         #渲染鼠标
         mouse.update(MainWindow)
         '''it.setPosition([x,0])
