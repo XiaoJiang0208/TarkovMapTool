@@ -7,6 +7,7 @@ from pygame.locals import *
 import os
 import traceback
 from scipy.spatial.transform import Rotation as R
+import ctypes
 #性能测试库
 
 
@@ -88,13 +89,12 @@ class Player(pg.sprite.Sprite):
         if self.size!=map.size:
             self.size=map.size
             print(self.angle+90)
-            self.image=pg.transform.rotozoom(self.raw,-(self.angle+90),self.size)
+            self.image=pg.transform.rotozoom(self.raw,-(self.angle-90),self.size)
             self.rect=self.image.get_rect()
         #角度变化
         if self.angle!=ps[1]:
             self.angle=ps[1]
-            print(self.angle+90)
-            self.image=pg.transform.rotozoom(self.raw,-(self.angle+90),self.size)
+            self.image=pg.transform.rotozoom(self.raw,-(self.angle-90),self.size)
             self.rect=self.image.get_rect()
         self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
         target.blit(self.image,self.rect)
@@ -144,9 +144,11 @@ def getPosition() -> list:
     angle[3]=angle[3][:-7]
     angle=list(map(float,angle))
     angle=quaternion2euler(angle)
-    print("++++",angle)
-    angle=angle[1] if angle[1]>=0 else 180-angle[1]
-    print("----",angle)
+    if abs(angle[0])<90:
+        angle=angle[1] if angle[1]>0 else angle[1]+360
+    elif abs(angle[0])>=90:
+        angle=180-angle[1] if angle[1]>0 else 180-angle[1]
+    print(angle)
     tmp=[list(map(float,dir[0].split("_")[1].split(","))),angle]
     os.remove(ImgPath+dir[0])
     return tmp
@@ -174,6 +176,8 @@ if __name__ == '__main__':
     clock=pg.time.Clock()
     MainWindow=pg.display.set_mode((800,600),pg.RESIZABLE)
     pg.display.set_caption("test")
+    HWND = pg.display.get_wm_info()["window"]
+    ctypes.windll.user32.SetWindowPos(HWND, -1, 0, 0, 0, 0, 0x0001)
 
     #初始化地图
     factory=Map("./maps/factory")
@@ -220,6 +224,7 @@ if __name__ == '__main__':
                     factory.resize(0.05)
                 if event.button == 5:
                     factory.resize(-0.05)
+
 
         #界面绘制
         MainWindow.fill((36, 40, 59))
