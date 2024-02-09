@@ -9,6 +9,11 @@ import traceback
 from scipy.spatial.transform import Rotation as R
 import ctypes
 #性能测试库
+#置顶
+import win32gui
+import win32con
+
+
 
 
 class Mouse(pg.sprite.Sprite):
@@ -88,12 +93,12 @@ class Player(pg.sprite.Sprite):
         #如果大小发生变化改变大小
         if self.size!=map.size:
             self.size=map.size
-            print(self.angle+90)
             self.image=pg.transform.rotozoom(self.raw,-(self.angle-90),self.size)
             self.rect=self.image.get_rect()
         #角度变化
         if self.angle!=ps[1]:
             self.angle=ps[1]
+            print(self.angle-90)
             self.image=pg.transform.rotozoom(self.raw,-(self.angle-90),self.size)
             self.rect=self.image.get_rect()
         self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
@@ -168,7 +173,7 @@ def getConfig():
 ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     #各种初始化:/
     InitDir()
     getConfig()
@@ -176,8 +181,8 @@ if __name__ == '__main__':
     clock=pg.time.Clock()
     MainWindow=pg.display.set_mode((800,600),pg.RESIZABLE)
     pg.display.set_caption("test")
-    HWND = pg.display.get_wm_info()["window"]
-    ctypes.windll.user32.SetWindowPos(HWND, -1, 0, 0, 0, 0, 0x0001)
+    #i=ctypes.windll.user32.GetLastError()
+    win32gui.SetWindowPos(pg.display.get_wm_info()['window'], win32con.HWND_TOPMOST, 0,0,0,0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
     #初始化地图
     factory=Map("./maps/factory")
@@ -244,4 +249,4 @@ if __name__ == '__main__':
         '''it.setPosition([x,0])
         it.shader(MainWindow)'''
         pg.display.update()
-pg.quit()
+    pg.quit()
