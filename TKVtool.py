@@ -18,7 +18,7 @@ def setSetting(pg,key,value):
 
 def getSetting(pg,key):
     try:
-        st=toml.loads('./setting.toml')
+        st=toml.load('./setting.toml')
         return st[pg][key]
     except:
         traceback.print_exc(file=open('error.log','w+'))

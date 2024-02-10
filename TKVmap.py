@@ -8,6 +8,7 @@ import os
 import traceback
 from scipy.spatial.transform import Rotation as R
 import ctypes
+import toml
 #性能测试库
 #置顶
 import win32gui
@@ -80,26 +81,27 @@ class Map(pg.sprite.Sprite):
 class Player(pg.sprite.Sprite):
     '''玩家标记'''
     #-0.04
-    def __init__(self) -> None:
+    def __init__(self,dir:str) -> None:
+        self.ruler=toml.load(dir+"/setting.toml")["player"]["ruler"]
         self.raw=pg.image.load("./marks/player.png").convert_alpha()
         self.image=pg.transform.scale_by(self.raw,0.2)
         self.rect=self.image.get_rect()
-        self.size=0.2
+        self.size=toml.load(dir+"/setting.toml")["player"]["size"]
+        self.reangle=toml.load(dir+"/setting.toml")["player"]["reangle"]
         self.angle=0
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
-        resize=map.size*22.7#fuk
+        resize=map.size*self.ruler#fuk
         ps=getPosition()
         #如果大小发生变化改变大小
         if self.size!=map.size:
             self.size=map.size
-            self.image=pg.transform.rotozoom(self.raw,-(self.angle-90),self.size)
+            self.image=pg.transform.rotozoom(self.raw,-(self.angle+self.reangle),self.size)
             self.rect=self.image.get_rect()
         #角度变化
         if self.angle!=ps[1]:
             self.angle=ps[1]
-            print(self.angle-90)
-            self.image=pg.transform.rotozoom(self.raw,-(self.angle-90),self.size)
+            self.image=pg.transform.rotozoom(self.raw,-(self.angle+self.reangle),self.size)
             self.rect=self.image.get_rect()
         self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
         target.blit(self.image,self.rect)
@@ -196,7 +198,7 @@ def createmap(dir:str):
     #初始化鼠标
     mouse=Mouse()
     #初始化玩家
-    player=Player()
+    player=Player(dir)
     #初始化控件
     testup=Button("up")
     testup.setBorder(15)
