@@ -117,13 +117,16 @@ class Button(pg.sprite.Sprite):
         self.rect=self.image.get_rect()
 
     def setText(self,text) -> None:
+        '''设置文本'''
         self.text=self.font.render(text,(27, 30, 46),(243, 243, 245))
         self.rect=self.image.get_rect()
 
     def setBorder(self,bd) -> None:
+        '''设置边框'''
         self.image=pg.Surface((self.text.get_size()[0]+bd,self.text.get_size()[1]+bd))
 
     def setPosition(self,ps:list) -> None:
+        '''设置位置'''
         self.rect.centerx=ps[0]+self.image.get_width()/2
         self.rect.centery=ps[1]+self.image.get_height()/2
 
@@ -165,25 +168,16 @@ def getPosition() -> list:
     os.remove(ImgPath+dir[0])
     return tmp
 
-def getConfig():
-    '''获取配置文件配置'''
-    global ImgPath, sleeptime, on_auto, off_auto, key, roomid, playerid, server
-    if 'setting.json' not in os.listdir('.\\'):
-        with open('setting.json','w') as setting:
-            cfg = json.dumps({'ImgPath':ImgPath})
-            setting.write(cfg)
-    with open('setting.json','r') as setting:
-        cfg = json.loads(setting.read())
-        ImgPath=cfg['ImgPath']
+
+#截图储存位置
+ImgPath=''
 
 
-ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
-
-
-def createmap(dir:str):
+def createmap(dir:str,imgpath):
     #各种初始化:/
+    global ImgPath
+    ImgPath=imgpath
     InitDir()
-    getConfig()
     pg.init()
     clock=pg.time.Clock()
     MainWindow=pg.display.set_mode((800,600),pg.RESIZABLE)

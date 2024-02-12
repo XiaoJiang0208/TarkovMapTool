@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "E:\TarkovMapTool\TKVtool.py", line 27, in getSetting
+    st=toml.load('./setting.toml')
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\18370\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\toml\decoder.py", line 133, in load
+    with io.open(_getpath(f), encoding='utf-8') as ffile:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: './setting.toml'
