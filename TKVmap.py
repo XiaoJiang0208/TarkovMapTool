@@ -82,12 +82,12 @@ class Player(pg.sprite.Sprite):
     '''玩家标记'''
     #-0.04
     def __init__(self,dir:str) -> None:
-        self.ruler=toml.load(dir+"/setting.toml")["player"]["ruler"]
+        self.ruler=toml.load(dir+"/setting.toml")["map"]["ruler"]
         self.raw=pg.image.load("./marks/player.png").convert_alpha()
         self.image=pg.transform.scale_by(self.raw,0.2)
         self.rect=self.image.get_rect()
-        self.size=toml.load(dir+"/setting.toml")["player"]["size"]
-        self.reangle=toml.load(dir+"/setting.toml")["player"]["reangle"]
+        self.size=toml.load(dir+"/setting.toml")["map"]["size"]
+        self.reangle=toml.load(dir+"/setting.toml")["map"]["reangle"]
         self.angle=0
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
@@ -103,7 +103,7 @@ class Player(pg.sprite.Sprite):
             self.angle=ps[1]
             self.image=pg.transform.rotozoom(self.raw,-(self.angle+self.reangle),self.size)
             self.rect=self.image.get_rect()
-        self.rect.center=(map.rect.centerx-ps[0][2]*resize,map.rect.centery-ps[0][0]*resize)
+        self.rect.center=(map.rect.centerx+ps[0][0]*resize,map.rect.centery+ps[0][2]*resize)
         target.blit(self.image,self.rect)
         return super().update()
 
@@ -153,10 +153,10 @@ def getPosition() -> list:
     global tmp
     dir=os.listdir(ImgPath)
     if len(dir)==0:
+        print(tmp)
         return tmp
     #求旋转角
     angle=dir[0].split("_")[2].split(",")
-    angle[3]=angle[3][:-7]
     angle=list(map(float,angle))
     angle=quaternion2euler(angle)
     if abs(angle[0])<90:
@@ -166,6 +166,7 @@ def getPosition() -> list:
     print(angle)
     tmp=[list(map(float,dir[0].split("_")[1].split(","))),angle]
     os.remove(ImgPath+dir[0])
+    print(tmp)
     return tmp
 
 

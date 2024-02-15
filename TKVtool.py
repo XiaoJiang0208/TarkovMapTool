@@ -8,13 +8,13 @@ import traceback
 
 
 def setSetting(pg,key,value):
-    #TODO: 就是干
+    '''设置设置'''
     try:
         open('./setting.toml', "a")
     except:
         traceback.print_exc(file=open('error.log','w+'))
         return None
-    st=toml.load(file)
+    st=toml.load('./setting.toml')
     print(st)
     st[pg]=st.get(pg,dict())#没有选项就初始化
     st[pg][key]=value
@@ -24,6 +24,7 @@ def setSetting(pg,key,value):
         toml.dump(st,f)
 
 def getSetting(pg,key):
+    '''获取设置'''
     try:
         st=toml.load('./setting.toml')
         return st[pg][key]
@@ -55,25 +56,27 @@ if __name__ == "__main__":
 
     #地图页面
     pageMap=ttk.Frame(notebook)
-    btFactory=ttk.Button(pageMap,text="工厂",command=lambda : createmap('./maps/factory',getSetting('map','screenshots')))
-    btFactory.grid(row=0,column=0)
-    ttk.Button(pageMap,text="tt").grid(row=1,column=1)
+    ttk.Button(pageMap,text="工厂",command=lambda : createmap('./maps/factory',getSetting('map','screenshots'))).grid(row=0,column=0)
+    ttk.Button(pageMap,text="海关",command=lambda : createmap('./maps/customs',getSetting('map','screenshots'))).grid(row=0,column=1)
 
 
     #设置界面
     def st():
+        #TODO: 设置逻辑
         pass
     def reset():
+        #TODO: 重置逻辑
         pass
     pageSetting=ttk.Frame(notebook)
-    ttk.Label(pageSetting,text="地图设置").grid(row=0,column=0)
+    ttk.Label(pageSetting,text="地图设置",font=('MSYH',14)).grid(row=0,column=0)
     #截图路径
+    ttk.Label(pageSetting,text="截图路径:").grid(row=1,column=0)
     screenshots=ttk.Entry(pageSetting)
     screenshots.insert(0,getSetting('map','screenshots'))
-    screenshots.grid(row=1,column=0)
+    screenshots.grid(row=1,column=1)
     #保存
-    ttk.Button(pageMap,text='保存',command=st).grid(row=2,column=0)
-    ttk.Button(pageMap,text='重置',command=reset).grid(row=2,column=1)
+    ttk.Button(pageSetting,text='保存',command=st).grid(row=2,column=0)
+    ttk.Button(pageSetting,text='重置',command=reset).grid(row=2,column=1)
 
 
     #添加书签页
