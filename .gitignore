@@ -1,3 +1,4 @@
 build/*
 setting.json
 dist/*
+*.exe
