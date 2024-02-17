@@ -103,7 +103,7 @@ class Player(pg.sprite.Sprite):
             self.angle=ps[1]
             self.image=pg.transform.rotozoom(self.raw,-(self.angle+self.reangle),self.size)
             self.rect=self.image.get_rect()
-        self.rect.center=(map.rect.centerx+ps[0][0]*resize,map.rect.centery+ps[0][2]*resize)
+        self.rect.center=(map.rect.centerx+(ps[0][0]+toml.load(dir+"/setting.toml")["map"]["centerx"])*resize,map.rect.centery+(ps[0][2]+toml.load(dir+"/setting.toml")["map"]["centery"])*resize)
         target.blit(self.image,self.rect)
         return super().update()
 
