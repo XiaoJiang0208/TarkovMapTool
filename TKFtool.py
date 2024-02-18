@@ -119,7 +119,7 @@ def offline():
 
 if __name__ == "__main__":
     getConfig()
-    driver = webdriver.Edge()
+    driver = webdriver.Edge("./msedgedriver.exe")
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
     kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件

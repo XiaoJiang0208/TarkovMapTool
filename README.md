@@ -18,6 +18,7 @@
     ```
 3. 修改游戏内的截图键与上面设置的一致
 4. 启动工具，并使用powerTory的剪切与锁定工具将地图置顶
+5. （非必须）[webdriver下载](https://developer.microsoft.com/zh-cn/microsoft-edge/tools/webdriver/ "webdriver下载") 将对应版本的 driver 命名为 `msedgedriver.exe` 并放在 exe 同级目录
 
 ## 多人联机
 1.打开setting.json文件
