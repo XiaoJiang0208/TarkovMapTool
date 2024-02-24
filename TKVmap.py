@@ -41,11 +41,12 @@ class Map(pg.sprite.Sprite):
     '''互动地图'''
     def __init__(self,dir:str) -> None:
         super().__init__()
-        self.dir=dir
-        self.raw=pg.image.load(self.dir+"/1.png").convert_alpha()
+        self.dir=dir#文件路径
+        self.raw=pg.image.load(self.dir+"/1.png").convert_alpha()#地图源文件
         self.size=1.0
-        self.image=pg.transform.scale_by(self.raw,self.size)
+        self.image=pg.transform.scale_by(self.raw,self.size)#地图处理后的显示图像
         self.rect=self.image.get_rect()
+        self.player=Player(dir)
 
     def move(self,x,y) -> None:
         '''向xy轴正半轴移动'''
@@ -75,6 +76,7 @@ class Map(pg.sprite.Sprite):
 
     def update(self, target:pg.Surface) -> None:
         target.blit(self.image,self.rect)
+        self.player.update(target,self)
         return super().update()
 
 
@@ -82,12 +84,12 @@ class Player(pg.sprite.Sprite):
     '''玩家标记'''
     #-0.04
     def __init__(self,dir:str) -> None:
-        self.ruler=toml.load(dir+"/setting.toml")["map"]["ruler"]
-        self.raw=pg.image.load("./marks/player.png").convert_alpha()
+        self.ruler=toml.load(dir+"/setting.toml")["map"]["ruler"]#比例尺
+        self.raw=pg.image.load("./marks/player.png").convert_alpha()#原始图像
         self.image=pg.transform.scale_by(self.raw,0.2)
         self.rect=self.image.get_rect()
-        self.size=toml.load(dir+"/setting.toml")["map"]["size"]
-        self.reangle=toml.load(dir+"/setting.toml")["map"]["reangle"]
+        self.size=toml.load(dir+"/setting.toml")["map"]["size"]#缩放
+        self.reangle=toml.load(dir+"/setting.toml")["map"]["reangle"]#偏移角度
         self.angle=0
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
@@ -103,7 +105,9 @@ class Player(pg.sprite.Sprite):
             self.angle=ps[1]
             self.image=pg.transform.rotozoom(self.raw,-(self.angle+self.reangle),self.size)
             self.rect=self.image.get_rect()
-        self.rect.center=(map.rect.centerx+(ps[0][0]+toml.load(dir+"/setting.toml")["map"]["centerx"])*resize,map.rect.centery+(ps[0][2]+toml.load(dir+"/setting.toml")["map"]["centery"])*resize)
+        #处理坐标和比例尺缩放的垃圾代码:(
+        self.rect.center=(map.rect.centerx+ps[0][0]*resize+toml.load(map.dir+"/setting.toml")["map"]["centerx"]*map.size,map.rect.centery+ps[0][2]*resize+toml.load(map.dir+"/setting.toml")["map"]["centery"]*map.size)
+        print(self.rect.center)
         target.blit(self.image,self.rect)
         return super().update()
 
@@ -155,14 +159,17 @@ def getPosition() -> list:
     if len(dir)==0:
         print(tmp)
         return tmp
+    if dir[0].split("_")!=4:
+        return([(0,0,0),0.0])
     #求旋转角
     angle=dir[0].split("_")[2].split(",")
     angle=list(map(float,angle))
     angle=quaternion2euler(angle)
-    if abs(angle[0])<90:
+    angle=(angle + 360) % 360
+    '''if abs(angle[0])<90:
         angle=angle[1] if angle[1]>0 else angle[1]+360
     elif abs(angle[0])>=90:
-        angle=180-angle[1] if angle[1]>0 else 180-angle[1]
+        angle=180-angle[1] if angle[1]>0 else 180-angle[1]'''
     print(angle)
     tmp=[list(map(float,dir[0].split("_")[1].split(","))),angle]
     os.remove(ImgPath+dir[0])
@@ -193,7 +200,7 @@ def createmap(dir:str,imgpath):
     #初始化鼠标
     mouse=Mouse()
     #初始化玩家
-    player=Player(dir)
+    #player=Player(dir)
     #初始化控件
     testup=Button("up")
     testup.setBorder(15)
@@ -241,7 +248,7 @@ def createmap(dir:str,imgpath):
         factory.update(MainWindow)
 
         #渲染玩家
-        player.update(MainWindow,factory)
+        #player.update(MainWindow,factory)
 
         #渲染控件
         testup.update(MainWindow)
@@ -249,7 +256,5 @@ def createmap(dir:str,imgpath):
 
         #渲染鼠标
         mouse.update(MainWindow)
-        '''it.setPosition([x,0])
-        it.shader(MainWindow)'''
         pg.display.update()
     pg.quit()
