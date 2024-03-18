@@ -1,5 +1,7 @@
 from selenium import  webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.edge.service import Service as EdgeService
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 import requests
 import keyboard as kb
 import time
@@ -119,7 +121,7 @@ def offline():
 
 if __name__ == "__main__":
     getConfig()
-    driver = webdriver.Edge()
+    driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
     kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件
