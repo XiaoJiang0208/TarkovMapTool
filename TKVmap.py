@@ -93,7 +93,8 @@ class Player(pg.sprite.Sprite):
         self.angle=0
         super().__init__()
     def update(self, target:pg.Surface, map:Map) -> None:
-        resize=map.size*self.ruler#fuk
+        #resize=(map.size*self.xruler,map.size*self.yruler)#fuk
+        #print(resize)
         ps=getPosition()
         #如果大小发生变化改变大小
         if self.size!=map.size:
@@ -106,7 +107,8 @@ class Player(pg.sprite.Sprite):
             self.image=pg.transform.rotozoom(self.raw,-(self.angle+self.reangle),self.size)
             self.rect=self.image.get_rect()
         #处理坐标和比例尺缩放的垃圾代码:(
-        self.rect.center=(map.rect.centerx+ps[0][0]*resize+toml.load(map.dir+"/setting.toml")["map"]["centerx"]*map.size,map.rect.centery+ps[0][2]*resize+toml.load(map.dir+"/setting.toml")["map"]["centery"]*map.size)
+        self.rect.center=(map.rect.centerx-ps[0][0]*map.size*self.ruler+toml.load(map.dir+"/setting.toml")["map"]["centerx"]*map.size,map.rect.centery+ps[0][2]*map.size*self.ruler+toml.load(map.dir+"/setting.toml")["map"]["centery"]*map.size)
+        print(111)
         print(self.rect.center)
         target.blit(self.image,self.rect)
         return super().update()
@@ -157,20 +159,17 @@ def getPosition() -> list:
     global tmp
     dir=os.listdir(ImgPath)
     if len(dir)==0:
-        print(tmp)
         return tmp
-    if dir[0].split("_")!=4:
+    if len(dir[0].split("_"))!=4:
         return([(0,0,0),0.0])
     #求旋转角
     angle=dir[0].split("_")[2].split(",")
     angle=list(map(float,angle))
     angle=quaternion2euler(angle)
-    angle=(angle + 360) % 360
-    '''if abs(angle[0])<90:
+    if abs(angle[0])<90:
         angle=angle[1] if angle[1]>0 else angle[1]+360
     elif abs(angle[0])>=90:
-        angle=180-angle[1] if angle[1]>0 else 180-angle[1]'''
-    print(angle)
+        angle=180-angle[1] if angle[1]>0 else 180-angle[1]
     tmp=[list(map(float,dir[0].split("_")[1].split(","))),angle]
     os.remove(ImgPath+dir[0])
     print(tmp)

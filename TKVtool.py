@@ -18,8 +18,6 @@ def setSetting(pg,key,value):
     print(st)
     st[pg]=st.get(pg,dict())#没有选项就初始化
     st[pg][key]=value
-    print(st)
-    print(type(st))
     with open('./setting.toml','w') as f:
         toml.dump(st,f)
 
