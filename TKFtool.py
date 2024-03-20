@@ -121,7 +121,10 @@ def offline():
 
 if __name__ == "__main__":
     getConfig()
-    driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
+    try:
+        driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
+    except Exception as e:
+        print(f"安装指定版本的Edge WebDriver时出错: {e}")#from fsaza
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
     kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件
