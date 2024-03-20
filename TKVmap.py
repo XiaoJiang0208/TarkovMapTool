@@ -85,7 +85,7 @@ class Player(pg.sprite.Sprite):
     #-0.04
     def __init__(self,dir:str) -> None:
         self.ruler=toml.load(dir+"/setting.toml")["map"]["ruler"]#比例尺
-        self.raw=pg.image.load("./marks/player.png").convert_alpha()#原始图像
+        self.raw=pg.transform.rotozoom(pg.image.load("./marks/player.png").convert_alpha(),0,toml.load(dir+"/setting.toml")["map"]["size"])#原始图像
         self.image=pg.transform.scale_by(self.raw,0.2)
         self.rect=self.image.get_rect()
         self.size=toml.load(dir+"/setting.toml")["map"]["size"]#缩放
