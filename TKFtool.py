@@ -16,12 +16,6 @@ import atexit
 ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
 #位置刷新间隔（秒）
 sleeptime=1.5
-#自动截图
-auto=False
-#启动自动截图
-on_auto='f5'
-#关闭自动截图
-off_auto='f6'
 #截图键
 key='j'
 #房间号
@@ -49,23 +43,13 @@ def InitDir():
     for d in dir:
         os.remove(ImgPath+d)
 
-def setScreenShoot(event):
-    '''设置自动截图状态'''
-    global auto
-    if event.name==on_auto:
-        auto=True
-    if event.name==off_auto:
-        auto=False
-
 def getConfig():
     '''获取配置文件配置'''
-    global ImgPath, sleeptime, on_auto, off_auto, key, roomid, playerid, server
+    global ImgPath, sleeptime, key, roomid, playerid, server
     if 'setting.json' not in os.listdir('.\\'):
         with open('setting.json','w') as setting:
             cfg = json.dumps({'ImgPath':ImgPath,
                             'sleeptime':sleeptime,
-                            'on_auto':on_auto,
-                            'off_auto':off_auto,
                             'key':key,
                             'roomid':roomid,
                             'playerid':playerid,
@@ -75,8 +59,6 @@ def getConfig():
         cfg = json.loads(setting.read())
         ImgPath=cfg['ImgPath']
         sleeptime=cfg['sleeptime']
-        on_auto=cfg['on_auto']
-        off_auto=cfg['off_auto']
         key=cfg['key']
         roomid=cfg['roomid']
         playerid=cfg['playerid']
@@ -127,13 +109,10 @@ if __name__ == "__main__":
         print(f"安装指定版本的Edge WebDriver时出错: {e}")#from fsaza
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
-    kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件
     playerList=[]
     while True:
         time.sleep(sleeptime)
         try:
-            if auto: #是否自动截图
-                kb.press_and_release(key)
             bt=driver.find_element(By.XPATH, "/html/body/div/div/div/div[2]/div/div/div[1]/div/input")
             bt.click()
             time.sleep(0.01)

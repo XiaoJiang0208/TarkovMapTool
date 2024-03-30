@@ -1,5 +1,7 @@
 # 塔可夫实时地图工具
 
+# 弃坑
+
 ## 视频教程
 [bilibili](https://www.bilibili.com/video/BV1wT4m1S74X)
 
